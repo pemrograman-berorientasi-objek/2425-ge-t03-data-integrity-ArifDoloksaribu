@@ -10,7 +10,7 @@ public class Driver2 {
         Scanner sc = new Scanner(System.in);
 
         LinkedList<Course> courses = new LinkedList<>();
-        LinkedList<Student> students = new LinkedList<>();
+        LinkedHashSet<Student> students = new LinkedHashSet<>(); // Menggunakan LinkedHashSet untuk menjaga urutan input
         Set<Enrollment> enrollments = new LinkedHashSet<>();
 
         Set<String> invalidStudents = new LinkedHashSet<>();
@@ -32,7 +32,7 @@ public class Driver2 {
                     break;
 
                 case "student-add":
-                    students.addFirst(new Student(data[1], data[2], data[3], data[4]));
+                    students.add(new Student(data[1], data[2], data[3], data[4])); // Menjaga urutan input
                     break;
 
                 case "enrollment-add":
@@ -67,7 +67,7 @@ public class Driver2 {
             System.out.println(course);
         }
 
-        // Cetak students dalam urutan terbaru ke terlama
+        // Cetak students dalam urutan sesuai input
         for (Student student : students) {
             System.out.println(student);
         }
@@ -80,7 +80,7 @@ public class Driver2 {
         sc.close();
     }
 
-    private static Student findStudentById(LinkedList<Student> students, String id) {
+    private static Student findStudentById(Set<Student> students, String id) {
         for (Student student : students) {
             if (student.getNim().equals(id)) return student;
         }
