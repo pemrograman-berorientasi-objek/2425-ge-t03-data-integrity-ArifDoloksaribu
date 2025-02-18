@@ -8,14 +8,13 @@ import academic.model.Enrollment;
 public class Driver2 {
     public static void main(String[] _args) {
         Scanner sc = new Scanner(System.in);
-        Set<Course> courses = new HashSet<>();
-        Set<Student> students = new HashSet<>();
-        Set<Enrollment> enrollments = new HashSet<>();
-        List<String> errors = new ArrayList<>();
 
-        // Menyimpan ID student dan course yang sudah dinyatakan tidak valid agar tidak dicetak berulang
-        Set<String> invalidStudents = new HashSet<>();
-        Set<String> invalidCourses = new HashSet<>();
+        LinkedList<Course> courses = new LinkedList<>();
+        LinkedList<Student> students = new LinkedList<>();
+        Set<Enrollment> enrollments = new LinkedHashSet<>();
+
+        Set<String> invalidStudents = new LinkedHashSet<>();
+        Set<String> invalidCourses = new LinkedHashSet<>();
 
         List<String> inputs = new ArrayList<>();
         while (true) {
@@ -26,47 +25,54 @@ public class Driver2 {
 
         for (String input : inputs) {
             String[] data = input.split("#");
-            
+
             switch (data[0]) {
                 case "course-add":
-                    courses.add(new Course(data[1], data[2], Integer.parseInt(data[3]), data[4]));
+                    courses.addFirst(new Course(data[1], data[2], Integer.parseInt(data[3]), data[4]));
                     break;
 
                 case "student-add":
-                    students.add(new Student(data[1], data[2], data[3], data[4]));
+                    students.addFirst(new Student(data[1], data[2], data[3], data[4]));
                     break;
 
                 case "enrollment-add":
                     Course course = findCourseById(courses, data[1]);
                     Student student = findStudentById(students, data[2]);
 
-                    if (student == null && !invalidStudents.contains(data[2])) {
-                        errors.add("invalid student|" + data[2]);
-                        invalidStudents.add(data[2]); // Tambahkan ke daftar student invalid yang sudah dilaporkan
-                    }
-                    if (course == null && !invalidCourses.contains(data[1])) {
-                        errors.add("invalid course|" + data[1]);
-                        invalidCourses.add(data[1]); // Tambahkan ke daftar course invalid yang sudah dilaporkan
-                    }
-                    if (student != null && course != null) {
+                    if (course == null) {
+                        invalidCourses.add("invalid course|" + data[1]);
+                    } else if (student == null) { 
+                        // Student hanya dianggap invalid jika course ada
+                        invalidStudents.add("invalid student|" + data[2]);
+                    } else {
                         enrollments.add(new Enrollment(course, student, data[3], data[4]));
                     }
                     break;
 
                 default:
-                    break;
+                    System.out.println("Perintah tidak dikenali: " + input);
             }
         }
 
-        for (String error : errors) {
+        // Cetak error dengan urutan sesuai input
+        for (String error : invalidStudents) {
             System.out.println(error);
         }
+        for (String error : invalidCourses) {
+            System.out.println(error);
+        }
+
+        // Cetak courses dalam urutan terbaru ke terlama
         for (Course course : courses) {
             System.out.println(course);
         }
+
+        // Cetak students dalam urutan terbaru ke terlama
         for (Student student : students) {
             System.out.println(student);
         }
+
+        // Cetak enrollments sesuai urutan input
         for (Enrollment enrollment : enrollments) {
             System.out.println(enrollment);
         }
@@ -74,14 +80,14 @@ public class Driver2 {
         sc.close();
     }
 
-    private static Student findStudentById(Set<Student> students, String id) {
+    private static Student findStudentById(LinkedList<Student> students, String id) {
         for (Student student : students) {
             if (student.getNim().equals(id)) return student;
         }
         return null;
     }
 
-    private static Course findCourseById(Set<Course> courses, String id) {
+    private static Course findCourseById(LinkedList<Course> courses, String id) {
         for (Course course : courses) {
             if (course.getId().equals(id)) return course;
         }
